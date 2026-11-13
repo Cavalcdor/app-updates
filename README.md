@@ -56,7 +56,11 @@ Each registered platform/channel has two files:
 
 Every history entry contains `enabled`, `version`, `build_number`, `published_at` and `notes`. Entries are ordered by strictly decreasing build number; gaps are permitted, duplicate build numbers are not. The first entry must match all five release fields in the latest manifest. Dates use the same `YYYY-MM-DD` format as the manifest.
 
-The initial Next Square history contains seven verified private Releases: v3.20.21 and v3.20.23–v3.20.28. It is a record of confirmed formal releases, not every development build. v3.20.22 was a local update-testing build and has no formal Release entry; earlier development history has not been reconstructed. Historical notes come from previously published metadata or the corresponding verified Release, with installer links and private release details excluded.
+The Next Square history contains 20 distinct Android versions verified from the private APK archive: v3.20.5–v3.20.15 and v3.20.20–v3.20.28. Seven correspond to private GitHub Releases; thirteen are local archived builds, including the v3.20.22 update-testing build. The generic latest APK is deduplicated by package version and build number. Each APK was checked for package identity, actual version/build and the original signing certificate. Windows executables belong to a separate platform and are not included in Android history.
+
+The optional `source` field distinguishes `private-release` from `local-archive`; omitted values retain the original `private-release` meaning. For archived builds, `published_at` is the version date recorded in the source changelog, not a GitHub publication timestamp. Notes come from published metadata, verified Releases or the matching source changelog. No local machine paths, installer URLs or signing credentials are published.
+
+The archived v3.20.10 APK is a rollback build with actual build number 111, later than v3.20.11 (109) and v3.20.12 (110). History therefore follows build order rather than version-name order. The superseded v3.20.11 and v3.20.12 rollback candidates are retained with `enabled: false`.
 
 `enabled` records whether that entry has been withdrawn; `true` does not recommend installing an older build. Retain withdrawn entries with `enabled: false`. If the latest build is withdrawn, update its manifest and matching history entry together; never silently fall back to an older build.
 

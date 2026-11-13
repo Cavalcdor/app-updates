@@ -94,6 +94,25 @@ class HistoryValidationTests(unittest.TestCase):
         self.history["releases"] = []
         self.rejected()
 
+    def test_archive_and_release_sources_are_supported(self):
+        self.history["releases"][0]["source"] = "private-release"
+        self.history["releases"][1]["source"] = "local-archive"
+        self.save()
+        self.assertEqual(validate(self.root), (1, 1))
+
+    def test_unknown_source_rejected(self):
+        self.history["releases"][1]["source"] = "unverified"
+        self.rejected()
+
+    def test_rollback_version_names_follow_build_order(self):
+        self.latest["version"] = "1.0"
+        self.history["releases"][0]["version"] = "1.0"
+        self.history["releases"][1]["version"] = "1.1"
+        self.history["releases"][1]["source"] = "local-archive"
+        self.history["releases"][1]["enabled"] = False
+        self.save()
+        self.assertEqual(validate(self.root), (1, 1))
+
     def test_history_required(self):
         (self.target / "stable.history.json").unlink()
         with self.assertRaises(OSError):

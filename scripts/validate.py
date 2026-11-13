@@ -57,12 +57,15 @@ def validate_history(path, latest, identity):
     previous_build = None
     for release in releases:
         validate_release(release, path)
-        require(set(release) == RELEASE_FIELDS, f"Unexpected release history fields: {path}")
+        require(RELEASE_FIELDS <= set(release) <= RELEASE_FIELDS | {"source"},
+                f"Unexpected release history fields: {path}")
+        require(release.get("source", "private-release") in ["private-release", "local-archive"],
+                f"Invalid history source: {path}")
         build = release["build_number"]
         require(previous_build is None or build < previous_build,
                 f"History builds must be unique and newest first: {path}")
         previous_build = build
-    require(releases[0] == {k: latest[k] for k in RELEASE_FIELDS},
+    require({k: releases[0][k] for k in RELEASE_FIELDS} == {k: latest[k] for k in RELEASE_FIELDS},
             f"Latest manifest and history disagree: {path}")
 
 

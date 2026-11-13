@@ -2,6 +2,8 @@
 
 # App Updates
 
+[![License](https://img.shields.io/badge/License-MIT-64748B?style=flat-square)](LICENSE)
+
 ![Format: JSON](https://img.shields.io/badge/Format-JSON-4B5563?style=flat-square) ![Validation: Python](https://img.shields.io/badge/Validation-Python-3776AB?style=flat-square) ![Installers: Private](https://img.shields.io/badge/Installers-Private-6B7280?style=flat-square)
 
 游戏和工具软件共用的公开更新信息仓库。只发布软件名称、分类、版本和更新说明，不存放安装包、私有源码、题库、联系方式或访问凭据。
@@ -79,3 +81,7 @@ python3 scripts/validate.py
 ```
 
 GitHub Actions 会在推送和 Pull Request 时校验格式、身份、目录与文件范围；构建号递增以及安装包是否就绪仍需在发布前核对。本仓库目前只提供版本信息，游戏内检查功能是否已经接入，应以软件自身的发布说明为准。
+
+## 许可与权利范围
+
+本仓库的原创代码、文档和更新元数据采用 [MIT 许可证](LICENSE)。该授权不涵盖目录中所列软件本身、其源码、安装包、题库、美术资源或商标；各软件仍遵循自身的许可与分发规则。

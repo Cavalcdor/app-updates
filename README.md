@@ -2,6 +2,8 @@
 
 # App Updates
 
+[![License](https://img.shields.io/badge/License-MIT-64748B?style=flat-square)](LICENSE)
+
 ![Format: JSON](https://img.shields.io/badge/Format-JSON-4B5563?style=flat-square) ![Validation: Python](https://img.shields.io/badge/Validation-Python-3776AB?style=flat-square) ![Installers: Private](https://img.shields.io/badge/Installers-Private-6B7280?style=flat-square)
 
 A shared public update-information repository for games and software tools. It publishes application names, categories, versions and release notes. Installers, private source code, task packs, contact details and credentials are kept elsewhere.
@@ -77,3 +79,7 @@ python3 scripts/validate.py
 ```
 
 GitHub Actions validates schema, identity, catalog consistency and allowed file scope on pushes and pull requests. Build-number progression and installer readiness still require release-time checks. This repository provides version information; consult each application's release notes to determine whether its client already supports update checks.
+
+## License and rights
+
+Original code, documentation and update metadata in this repository are provided under the [MIT License](LICENSE). This permission does not license the applications listed in the catalog, their source code, installers, task packs, artwork or trademarks. Each application retains its own licensing and distribution terms.

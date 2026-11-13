@@ -1,77 +1,77 @@
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 # App Updates
 
-游戏和工具软件共用的公开更新信息仓库。只发布软件名称、分类、版本和更新说明，不存放安装包、私有源码、题库、联系方式或访问凭据。
+A shared public update-information repository for games and software tools. It publishes application names, categories, versions and release notes. Installers, private source code, task packs, contact details and credentials are kept elsewhere.
 
-## 软件目录
+## Applications
 
-| 类别 | 软件 | 平台 | 通道 | 分发 |
+| Category | Application | Platform | Channel | Distribution |
 | --- | --- | --- | --- | --- |
-| 游戏 | [下一格 / Next Square](apps/next-square/android/stable.json) | Android | 正式版 | 私下分发 |
-| 实用工具 | 暂无登记软件 | — | — | — |
-| 效率办公 | 暂无登记软件 | — | — | — |
-| 学习教育 | 暂无登记软件 | — | — | — |
-| 影音图像 | 暂无登记软件 | — | — | — |
+| Games | [Next Square](apps/next-square/android/stable.json) | Android | Stable | Private |
+| Utilities | None registered | — | — | — |
+| Productivity | None registered | — | — | — |
+| Education | None registered | — | — | — |
+| Media | None registered | — | — | — |
 
-其他预设类别：实用工具、效率办公、学习教育、影音图像。按实际需要添加软件，不创建占位产品。
+Register applications as needed; do not create placeholder products.
 
-## 固定地址与分类
+## Stable URLs and categories
 
-- 总目录：[`catalog.json`](catalog.json)。软件类别仅在这里维护。
-- 下一格 Android 正式版：[`apps/next-square/android/stable.json`](apps/next-square/android/stable.json)。
-- 原始 JSON：<https://raw.githubusercontent.com/Cavalcdor/app-updates/main/apps/next-square/android/stable.json>。
+- Application catalog: [`catalog.json`](catalog.json). Categories are maintained here.
+- Next Square for Android, stable channel: [`apps/next-square/android/stable.json`](apps/next-square/android/stable.json).
+- [Raw update JSON](https://raw.githubusercontent.com/Cavalcdor/app-updates/main/apps/next-square/android/stable.json).
 
-每款软件固定一个 `app_id`。版本信息路径为 `apps/<app_id>/<platform>/<channel>.json`，不包含分类，改名或调整类别时保留原 ID 与地址。只有真实发布的平台和通道才建立文件。
+Each application has a permanent `app_id`. Update files follow `apps/<app_id>/<platform>/<channel>.json`; categories are not part of the path. Keep the ID and URL when renaming or recategorizing an application. Create files only for platforms and channels that actually ship.
 
-## 数据格式 v1
+## Schema v1
 
-`catalog.json` 包含 `schema_version`、`categories` 和 `apps`。每款软件声明唯一 `app_id`、显示名称、类别、简介、维护状态、分发方式及 `targets`（平台与通道）。当前统一为私下分发，`distribution` 固定为 `private`。
+`catalog.json` contains `schema_version`, `categories` and `apps`. Each application declares its unique `app_id`, display name, category, summary, maintenance status, distribution method and platform/channel `targets`. Distribution is currently private for all applications: `distribution` is `private`.
 
-维护状态：`active` 正常维护、`maintenance` 仅维护、`discontinued` 停止维护。停止维护时保留目录和版本文件，不以删除文件表示停更。
+Maintenance states are `active`, `maintenance` and `discontinued`. Retain catalog entries and version files for discontinued applications rather than deleting them.
 
-每份版本 JSON 包含：
-
-| 字段 | 含义 |
+| Update field | Meaning |
 | --- | --- |
-| `schema_version` | 当前为 `1`；未知格式不能当作已是最新版 |
-| `app_id` / `platform` / `channel` | 客户端必须检查三者与自己的配置一致 |
-| `enabled` | `false` 时暂停推荐该版本，不删除原地址 |
-| `version` | 给用户阅读的版本名称，不用于字符串大小比较 |
-| `build_number` | 同一软件、平台、通道内严格递增的正整数 |
-| `published_at` | 正式发布日期，`YYYY-MM-DD` |
-| `notes` | 纯文本更新说明数组，不含可执行内容 |
+| `schema_version` | Currently `1`; an unknown schema must not be treated as “up to date” |
+| `app_id`, `platform`, `channel` | Must match the client's configuration |
+| `enabled` | `false` pauses recommendations without removing the URL |
+| `version` | Human-readable version, not a string-comparison key |
+| `build_number` | Strictly increasing positive integer within an app/platform/channel |
+| `published_at` | Release date in `YYYY-MM-DD` format |
+| `notes` | Array of plain-text release notes; no executable content |
 
-新增可选字段时保持 v1 兼容；不改变已有字段的含义。更新说明应包含旧用户升级时需要知道的重要变化，不能只列内部构建编号。
+Optional additions must remain compatible with v1 and retain existing field meanings. Notes should explain changes relevant to users upgrading, rather than listing internal build IDs alone.
 
-## 客户端约定
+## Client behavior
 
-启动时后台检查，每天最多自动检查一次；用户可关闭自动检查，也能手动检查。网络超时、格式错误或文件不存在不能显示“已是最新版”，更不能阻塞软件使用。
+Check in the background on startup, at most once a day automatically. Users can disable automatic checks and check manually. Timeouts, invalid data and missing files must not appear as “up to date” or block normal use.
 
-只有身份匹配、`enabled=true` 且 `build_number` 大于当前安装版本时才提示更新。不得自动降级。“稍后”按软件、平台、通道和目标构建号记录，手动检查仍可查看该版本。游戏中或工具运行任务期间延后弹窗。
+Offer an update only when identity fields match, `enabled=true`, and `build_number` exceeds the installed build. Never downgrade automatically. Remember “Later” per application, platform, channel and target build; manual checks can still display that version. Defer prompts during a game or a running tool task.
 
-按钮使用“稍后 / 如何更新”。下一格的更新说明为：
+Use “Later” and “How to update” actions. For Next Square, the instructions are:
 
-> 请联系发布者获取最新版安装包。
+> Contact the publisher to obtain the latest installer.
 >
-> 安装时直接覆盖更新，无需卸载。
+> Install it over the existing app; uninstalling is unnecessary.
 
-安装方式由每款软件自己决定，不把下一格的覆盖安装说明直接套用于其他工具。客户端只读取更新信息，不执行远程代码，不在软件中内置 GitHub 访问令牌。
+Other applications define their own installation instructions. Clients only read update information; they do not execute remote code or embed GitHub access tokens.
 
-## 发布流程
+## Publishing
 
-1. 在软件自己的私有仓库中完成构建和测试。
-2. 上传私有 Release，核对安装包签名、版本及文件校验值。
-3. 从该正式版本填写或生成对应 JSON；同一更新目标的 `build_number` 必须递增。
-4. 运行 `python3 scripts/validate.py`；确认没有加入未发布功能、安装包、下载地址或敏感资料。
-5. 最后推送本仓库，客户端才会收到新版提示。
+1. Build and test in the application's private repository.
+2. Upload a private Release and verify the installer signature, version and checksum.
+3. Generate or fill in the update JSON from that release, increasing `build_number` for the target.
+4. Run `python3 scripts/validate.py`. Check that no unreleased features, installers, download URLs or sensitive data were added.
+5. Push this repository last, enabling client notifications only after the installer is ready.
 
-有问题的发布将 `enabled` 改为 `false` 暂停推荐；修复后使用更大的构建号发布。较新安装版本不能因服务端撤回而被自动降级。
+For a faulty release, set `enabled=false`. Publish the fix with a higher build number; withdrawal must not downgrade newer installations.
 
-新软件只需增加一条目录记录和对应版本 JSON。已有软件添加平台或测试通道时，增加目标声明及对应文件。不要为每款软件重复创建公开更新仓库。
+Add one catalog entry and the appropriate version file for a new application. New platforms and preview channels require corresponding target declarations and files. Reuse this repository instead of creating a separate public update repository per app.
 
-## 校验
+## Validation
 
 ```sh
 python3 scripts/validate.py
 ```
 
-GitHub Actions 会在推送和 Pull Request 时校验格式、身份、目录与文件范围；构建号递增以及安装包是否就绪仍需在发布前核对。本仓库目前只提供版本信息，游戏内检查功能是否已经接入，应以软件自身的发布说明为准。
+GitHub Actions validates schema, identity, catalog consistency and allowed file scope on pushes and pull requests. Build-number progression and installer readiness still require release-time checks. This repository provides version information; consult each application's release notes to determine whether its client already supports update checks.

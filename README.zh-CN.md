@@ -2,6 +2,8 @@
 
 # App Updates
 
+![Format: JSON](https://img.shields.io/badge/Format-JSON-4B5563?style=flat-square) ![Validation: Python](https://img.shields.io/badge/Validation-Python-3776AB?style=flat-square) ![Installers: Private](https://img.shields.io/badge/Installers-Private-6B7280?style=flat-square)
+
 游戏和工具软件共用的公开更新信息仓库。只发布软件名称、分类、版本和更新说明，不存放安装包、私有源码、题库、联系方式或访问凭据。
 
 ## 软件目录

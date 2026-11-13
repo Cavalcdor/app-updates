@@ -2,6 +2,8 @@
 
 # App Updates
 
+![Format: JSON](https://img.shields.io/badge/Format-JSON-4B5563?style=flat-square) ![Validation: Python](https://img.shields.io/badge/Validation-Python-3776AB?style=flat-square) ![Installers: Private](https://img.shields.io/badge/Installers-Private-6B7280?style=flat-square)
+
 A shared public update-information repository for games and software tools. It publishes application names, categories, versions and release notes. Installers, private source code, task packs, contact details and credentials are kept elsewhere.
 
 ## Applications

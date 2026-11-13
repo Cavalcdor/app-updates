@@ -25,6 +25,7 @@
 - 总目录：[`catalog.json`](catalog.json)。软件类别仅在这里维护。
 - 下一格 Android 正式版：[`apps/next-square/android/stable.json`](apps/next-square/android/stable.json)。
 - 原始 JSON：<https://raw.githubusercontent.com/Cavalcdor/app-updates/main/apps/next-square/android/stable.json>。
+- 发布历史：[`apps/next-square/android/stable.history.json`](apps/next-square/android/stable.history.json)。
 
 每款软件固定一个 `app_id`。版本信息路径为 `apps/<app_id>/<platform>/<channel>.json`，不包含分类，改名或调整类别时保留原 ID 与地址。只有真实发布的平台和通道才建立文件。
 
@@ -48,6 +49,21 @@
 
 新增可选字段时保持 v1 兼容；不改变已有字段的含义。更新说明应包含旧用户升级时需要知道的重要变化，不能只列内部构建编号。
 
+## 版本历史清单
+
+每个已登记的平台和通道配套两份文件：
+
+- `<channel>.json`：供检查更新使用的精简最新版信息，保留已有客户端地址和格式。
+- `<channel>.history.json`：相同 `app_id`、`platform`、`channel` 的发布历史，使用 `schema_version: 1` 和 `releases` 数组。
+
+每条历史记录包含 `enabled`、`version`、`build_number`、`published_at`、`notes`。按构建号严格倒序排列，允许编号有间隔，不允许重复。首条记录的五个字段必须与最新版清单完全一致。日期与最新版清单相同，使用 `YYYY-MM-DD`。
+
+下一格首次回填的是 7 个可核实的私有正式 Release：v3.20.21，以及 v3.20.23–v3.20.28。这是已确认的正式发布记录，不等同于全部开发构建；v3.20.22 是本地更新测试构建，没有正式 Release 条目，更早的开发历史暂未重建。历史说明来自已公开的版本元数据或核实后的对应 Release，仅提取更新内容，不公开安装包链接等私有发布资料。
+
+`enabled` 用于记录该条目是否撤回；历史条目的 `true` 不代表推荐安装旧版。撤回后保留条目并改为 `false`。撤回最新版时，应同时更新最新版清单和历史首条，不自动回退推荐旧构建。
+
+历史文件上限为 1 MiB，总目录与最新版清单仍保持 64 KiB。历史字段使用明确白名单，防止混入下载地址或访问凭据。公开清单不提供安装包。现有游戏内更新日志仍随安装包提供，增加历史文件不会改变已安装客户端的行为。
+
 ## 客户端约定
 
 启动时后台检查，每天最多自动检查一次；用户可关闭自动检查，也能手动检查。网络超时、格式错误或文件不存在不能显示“已是最新版”，更不能阻塞软件使用。
@@ -66,17 +82,18 @@
 
 1. 在软件自己的私有仓库中完成构建和测试。
 2. 上传私有 Release，核对安装包签名、版本及文件校验值。
-3. 从该正式版本填写或生成对应 JSON；同一更新目标的 `build_number` 必须递增。
-4. 运行 `python3 scripts/validate.py`；确认没有加入未发布功能、安装包、下载地址或敏感资料。
+3. 同一提交中更新 `<channel>.json`，并将相同版本追加到 `<channel>.history.json` 首部，保留旧条目；同一更新目标的 `build_number` 必须递增。
+4. 运行 `python3 -m unittest discover -s tests` 和 `python3 scripts/validate.py`；确认没有加入未发布功能、安装包、下载地址或敏感资料。
 5. 最后推送本仓库，客户端才会收到新版提示。
 
 有问题的发布将 `enabled` 改为 `false` 暂停推荐；修复后使用更大的构建号发布。较新安装版本不能因服务端撤回而被自动降级。
 
-新软件只需增加一条目录记录和对应版本 JSON。已有软件添加平台或测试通道时，增加目标声明及对应文件。不要为每款软件重复创建公开更新仓库。
+新软件需增加一条目录记录、对应最新版 JSON 和历史 JSON。已有软件添加平台或测试通道时，增加目标声明及对应文件。不要为每款软件重复创建公开更新仓库。
 
 ## 校验
 
 ```sh
+python3 -m unittest discover -s tests
 python3 scripts/validate.py
 ```
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+RELEASE_FIELDS = {"enabled", "version", "build_number", "published_at", "notes"}
 
 
 def require(ok, message):
@@ -13,8 +14,8 @@ def require(ok, message):
         raise ValueError(message)
 
 
-def read_json(path):
-    require(path.stat().st_size <= 65536, f"Oversized metadata: {path}")
+def read_json(path, max_size=65536):
+    require(path.stat().st_size <= max_size, f"Oversized metadata: {path}")
     value = json.loads(path.read_text(encoding="utf-8"))
     require(isinstance(value, dict) and type(value.get("schema_version")) is int
             and value["schema_version"] == 1, f"Unsupported schema: {path}")
@@ -27,6 +28,42 @@ def slug(value):
 
 def text(value):
     return isinstance(value, str) and bool(value.strip())
+
+
+def validate_release(release, path):
+    require(isinstance(release, dict), f"Invalid release: {path}")
+    require(type(release.get("enabled")) is bool, f"Invalid enabled flag: {path}")
+    require(text(release.get("version")), f"Missing version: {path}")
+    require(type(release.get("build_number")) is int and release["build_number"] > 0,
+            f"Invalid build number: {path}")
+    published = release.get("published_at")
+    require(isinstance(published, str) and date.fromisoformat(published).isoformat() == published,
+            f"Invalid date: {path}")
+    notes = release.get("notes")
+    require(isinstance(notes, list) and notes and all(text(n) for n in notes),
+            f"Invalid notes: {path}")
+    require(not any(k in release for k in ["download_url", "token", "password", "contact"]),
+            f"Private distribution data in public file: {path}")
+
+
+def validate_history(path, latest, identity):
+    history = read_json(path, max_size=1048576)
+    require(set(history) == {"schema_version", "app_id", "platform", "channel", "releases"},
+            f"Unexpected history fields: {path}")
+    for field, value in identity.items():
+        require(history.get(field) == value, f"Mismatched history {field}: {path}")
+    releases = history.get("releases")
+    require(isinstance(releases, list) and releases, f"Missing release history: {path}")
+    previous_build = None
+    for release in releases:
+        validate_release(release, path)
+        require(set(release) == RELEASE_FIELDS, f"Unexpected release history fields: {path}")
+        build = release["build_number"]
+        require(previous_build is None or build < previous_build,
+                f"History builds must be unique and newest first: {path}")
+        previous_build = build
+    require(releases[0] == {k: latest[k] for k in RELEASE_FIELDS},
+            f"Latest manifest and history disagree: {path}")
 
 
 def validate(root=ROOT):
@@ -42,6 +79,7 @@ def validate(root=ROOT):
         require(category["id"] not in category_ids, "Duplicate category")
         category_ids.add(category["id"])
     app_ids, expected = set(), {root / "catalog.json"}
+    release_count = 0
     for app in apps:
         require(isinstance(app, dict) and slug(app.get("app_id")), "Invalid app ID")
         app_id = app["app_id"]
@@ -63,25 +101,23 @@ def validate(root=ROOT):
             path = root / "apps" / app_id / platform / (channel + ".json")
             expected.add(path)
             release = read_json(path)
-            for field, value in [("app_id", app_id), ("platform", platform), ("channel", channel)]:
+            identity = {"app_id": app_id, "platform": platform, "channel": channel}
+            for field, value in identity.items():
                 require(release.get(field) == value, f"Mismatched {field}: {path}")
-            require(type(release.get("enabled")) is bool, f"Invalid enabled flag: {path}")
-            require(text(release.get("version")), f"Missing version: {path}")
-            require(type(release.get("build_number")) is int and release["build_number"] > 0, f"Invalid build number: {path}")
-            published = release.get("published_at")
-            require(isinstance(published, str) and date.fromisoformat(published).isoformat() == published, f"Invalid date: {path}")
-            notes = release.get("notes")
-            require(isinstance(notes, list) and notes and all(text(n) for n in notes), f"Invalid notes: {path}")
-            require(not any(k in release for k in ["download_url", "token", "password", "contact"]), f"Private distribution data in public file: {path}")
+            validate_release(release, path)
+            history_path = path.with_name(channel + ".history.json")
+            expected.add(history_path)
+            validate_history(history_path, release, identity)
+            release_count += 1
     require(set(root.glob("**/*.json")) == expected, "Undeclared JSON files found")
-    allowed = {"LICENSE", "README.md", "README.zh-CN.md", "catalog.json", ".gitignore", "scripts/validate.py", ".github/workflows/validate.yml"}
+    allowed = {"LICENSE", "README.md", "README.zh-CN.md", "catalog.json", ".gitignore", "scripts/validate.py", "tests/test_validate.py", ".github/workflows/validate.yml"}
     allowed.update(p.relative_to(root).as_posix() for p in expected)
     for path in root.rglob("*"):
         relative = path.relative_to(root)
         if not path.is_file() or any(part in [".git", "__pycache__"] for part in relative.parts):
             continue
         require(relative.as_posix() in allowed, f"Unexpected public file: {relative}")
-    return len(apps), len(expected) - 1
+    return len(apps), release_count
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ Register applications as needed; do not create placeholder products.
 - Application catalog: [`catalog.json`](catalog.json). Categories are maintained here.
 - Next Square for Android, stable channel: [`apps/next-square/android/stable.json`](apps/next-square/android/stable.json).
 - [Raw update JSON](https://raw.githubusercontent.com/Cavalcdor/app-updates/main/apps/next-square/android/stable.json).
+- Release history: [`apps/next-square/android/stable.history.json`](apps/next-square/android/stable.history.json).
 
 Each application has a permanent `app_id`. Update files follow `apps/<app_id>/<platform>/<channel>.json`; categories are not part of the path. Keep the ID and URL when renaming or recategorizing an application. Create files only for platforms and channels that actually ship.
 
@@ -46,6 +47,21 @@ Maintenance states are `active`, `maintenance` and `discontinued`. Retain catalo
 
 Optional additions must remain compatible with v1 and retain existing field meanings. Notes should explain changes relevant to users upgrading, rather than listing internal build IDs alone.
 
+## Version history
+
+Each registered platform/channel has two files:
+
+- `<channel>.json` is the compact latest-version manifest used by update checks; existing client URLs and schema remain unchanged.
+- `<channel>.history.json` contains the release history for the same `app_id`, `platform` and `channel`, under a `releases` array and `schema_version: 1`.
+
+Every history entry contains `enabled`, `version`, `build_number`, `published_at` and `notes`. Entries are ordered by strictly decreasing build number; gaps are permitted, duplicate build numbers are not. The first entry must match all five release fields in the latest manifest. Dates use the same `YYYY-MM-DD` format as the manifest.
+
+The initial Next Square history contains seven verified private Releases: v3.20.21 and v3.20.23–v3.20.28. It is a record of confirmed formal releases, not every development build. v3.20.22 was a local update-testing build and has no formal Release entry; earlier development history has not been reconstructed. Historical notes come from previously published metadata or the corresponding verified Release, with installer links and private release details excluded.
+
+`enabled` records whether that entry has been withdrawn; `true` does not recommend installing an older build. Retain withdrawn entries with `enabled: false`. If the latest build is withdrawn, update its manifest and matching history entry together; never silently fall back to an older build.
+
+History documents are limited to 1 MiB, while catalogs and latest manifests retain their 64 KiB limit. History fields are explicitly checked to prevent extra download or credential fields. This public history does not publish installers. The current game's in-app changelog remains bundled with the application; adding this file does not change installed clients.
+
 ## Client behavior
 
 Check in the background on startup, at most once a day automatically. Users can disable automatic checks and check manually. Timeouts, invalid data and missing files must not appear as “up to date” or block normal use.
@@ -64,8 +80,8 @@ Other applications define their own installation instructions. Clients only read
 
 1. Build and test in the application's private repository.
 2. Upload a private Release and verify the installer signature, version and checksum.
-3. Generate or fill in the update JSON from that release, increasing `build_number` for the target.
-4. Run `python3 scripts/validate.py`. Check that no unreleased features, installers, download URLs or sensitive data were added.
+3. Update `<channel>.json` and prepend the same release to `<channel>.history.json` in the same commit, increasing `build_number` for the target. Preserve older entries.
+4. Run `python3 -m unittest discover -s tests` and `python3 scripts/validate.py`. Check that no unreleased features, installers, download URLs or sensitive data were added.
 5. Push this repository last, enabling client notifications only after the installer is ready.
 
 For a faulty release, set `enabled=false`. Publish the fix with a higher build number; withdrawal must not downgrade newer installations.
@@ -75,6 +91,7 @@ Add one catalog entry and the appropriate version file for a new application. Ne
 ## Validation
 
 ```sh
+python3 -m unittest discover -s tests
 python3 scripts/validate.py
 ```
 

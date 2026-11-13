@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "categories": [
+    {
+      "id": "games",
+      "name": "游戏"
+    },
+    {
+      "id": "tools",
+      "name": "实用工具"
+    },
+    {
+      "id": "productivity",
+      "name": "效率办公"
+    },
+    {
+      "id": "learning",
+      "name": "学习教育"
+    },
+    {
+      "id": "media",
+      "name": "影音图像"
+    }
+  ],
+  "apps": [
+    {
+      "app_id": "next-square",
+      "name": "下一格 / Next Square",
+      "category": "games",
+      "description": "双人互动棋盘游戏。",
+      "status": "active",
+      "distribution": "private",
+      "targets": [
+        {
+          "platform": "android",
+          "channel": "stable"
+        }
+      ]
+    }
+  ]
+}

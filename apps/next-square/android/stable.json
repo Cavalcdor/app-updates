@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "app_id": "next-square",
+  "platform": "android",
+  "channel": "stable",
+  "enabled": true,
+  "version": "3.20.21",
+  "build_number": 120,
+  "published_at": "2026-11-13",
+  "notes": [
+    "修复进度恢复，保留待完成任务、换题结果、双方统计与命运奖励。",
+    "修复系列赛重入、进度校验及结算保存问题。",
+    "完善保存失败提示与离开确认。",
+    "修复快速切换页面时的引导和动效错误。"
+  ]
+}

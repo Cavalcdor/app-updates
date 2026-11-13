@@ -74,7 +74,7 @@ def validate(root=ROOT):
             require(isinstance(notes, list) and notes and all(text(n) for n in notes), f"Invalid notes: {path}")
             require(not any(k in release for k in ["download_url", "token", "password", "contact"]), f"Private distribution data in public file: {path}")
     require(set(root.glob("**/*.json")) == expected, "Undeclared JSON files found")
-    allowed = {"README.md", "catalog.json", ".gitignore", "scripts/validate.py", ".github/workflows/validate.yml"}
+    allowed = {"README.md", "README.zh-CN.md", "catalog.json", ".gitignore", "scripts/validate.py", ".github/workflows/validate.yml"}
     allowed.update(p.relative_to(root).as_posix() for p in expected)
     for path in root.rglob("*"):
         relative = path.relative_to(root)

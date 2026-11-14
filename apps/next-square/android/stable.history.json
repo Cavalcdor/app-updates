@@ -6,6 +6,18 @@
   "releases": [
     {
       "enabled": true,
+      "version": "3.21.1",
+      "build_number": 129,
+      "published_at": "2026-11-14",
+      "notes": [
+        "今日之格关闭后保留查看入口，可重新展开。",
+        "修复面板和按钮区域无法滑动的问题，滑动时不再误触点击。",
+        "增加说明文字与任务列表的上下内边距。"
+      ],
+      "source": "private-release"
+    },
+    {
+      "enabled": true,
       "version": "3.21.0",
       "build_number": 128,
       "published_at": "2026-11-13",

@@ -6,6 +6,18 @@
   "releases": [
     {
       "enabled": true,
+      "version": "3.22.0",
+      "build_number": 132,
+      "published_at": "2026-11-16",
+      "notes": [
+        "统一按钮、页面和弹窗动效，进入对局响应更快。",
+        "改进新版提醒，保留已发现的更新信息并在打开时后台刷新。",
+        "修复减少动态时任务卡遮罩残留、重复确认及更新提醒衔接问题。"
+      ],
+      "source": "private-release"
+    },
+    {
+      "enabled": true,
       "version": "3.21.3",
       "build_number": 131,
       "published_at": "2026-11-15",
